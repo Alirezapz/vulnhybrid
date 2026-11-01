@@ -12,27 +12,28 @@ primary MCC gain over token LR.** This repository does not claim state-of-the-ar
 detection or full reproduction of every named graph paper.
 
 - [Graph study and complete comparisons](docs/GRAPH_STUDY_REPORT.md)
-- [Graph research report](docs/GRAPH_STUDY_REPORT.md)
+- [Self-contained graph report: all configurations](results/2026-11-01-graphs/VulnHybrid_Graph_Study.html)
 - [Graph reproduction instructions](docs/GRAPH_REPRODUCTION.md)
 - [Graph exactness/execution ledger](docs/GRAPH_REPLICATION_LEDGER.md)
 - [Recent graph and graph/LLM papers](docs/GRAPH_RECENT_WORK.md)
 
 - [Experiment report and all comparisons](docs/EXPERIMENT_REPORT.md)
-- [Earlier research report](docs/EXPERIMENT_REPORT.md)
+- [Self-contained visual report](results/2026-11-01/VulnHybrid_Research_Report.html)
 - [Code/scientific audit](docs/CODE_AUDIT.md)
 - [Related work and replication ledger](docs/LITERATURE_REVIEW.md)
 - [Frozen evaluation protocol](docs/EXPERIMENT_PROTOCOL.md)
 - [Original pipeline design](docs/PIPELINE.md)
 
-## Research artifact availability
+## Release downloads
 
-This checkout contains the maintained scanner, research implementations,
-technical reports and tests. Raw numerical experiment records and fitted models
-are packaged separately; the research release has not yet been published.
-See [DOWNLOADS](docs/DOWNLOADS.md) for the prepared artifact layout.
+The [v1.2.0 release](https://github.com/Alirezapz/vulnhybrid/releases/tag/v1.2.0)
+provides the raw numerical experiment records, reusable trained models, a
+standalone HTML report, a comparison figure and SHA-256 checksums. The source
+checkout contains code, self-contained comparison reports and technical documentation.
+See [DOWNLOADS](docs/DOWNLOADS.md) for extraction and verification instructions.
 
-Academic manuscripts, thesis files, obsolete notebooks and temporary sample
-verdicts are excluded from this public source distribution.
+Academic manuscripts, the thesis, obsolete notebooks, temporary sample verdicts,
+raw analyzer streams and regenerable graph caches are excluded from this release.
 
 ## Scanner
 
@@ -209,7 +210,7 @@ the graph/fusion study; `docs/` contains the audit, review and protocols.
 
 All **90 tests pass** in the recorded CPU environment, and a separate verifier
 recomputes exported metrics/selections and checks full training membership for
-all 78 neural runs. Trained models and raw numerical records are separate release assets. Graph
+all 78 neural runs. Trained models, run metadata and raw numerical records are separate release assets. Graph
 caches are regenerated with the pinned extraction commands.
 
 MIT for the project code, with the original copyright preserved. See

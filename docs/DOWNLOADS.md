@@ -1,9 +1,9 @@
 # Release downloads and restoration
 
 Use the [v1.2.0 release](https://github.com/Alirezapz/vulnhybrid/releases/tag/v1.2.0).
-The repository tracks the maintained code, technical reports, compact comparison
-tables, run configurations and training histories. Larger reusable artifacts
-are separate downloads:
+The repository tracks the maintained code and self-contained technical reports.
+Raw numerical records, fitted models and matching run metadata are separate
+downloads:
 
 | Asset | Contents |
 |---|---|
@@ -31,7 +31,11 @@ The model download is optional for using the static scanner. The experiment-data
 download is required for checks that read frozen memberships or raw predictions.
 Extracting restores paths directly beneath `results/`; no manual renaming is
 needed. Rebuild graph caches with [GRAPH_REPRODUCTION](GRAPH_REPRODUCTION.md).
-The recorded data revisions, graph configurations and hashes are supplied.
+The model archive supplies per-run graph configurations and training histories.
+The self-contained HTML reports include the measured comparison tables. Compact
+intermediate JSON/CSV summaries are not included in this distribution; regenerate
+them with the documented experiment commands before running verifiers that need
+those files in addition to raw predictions.
 
 Only load trusted fitted estimators: joblib is a Python object serialization
 format. Upstream dataset/code rights remain separate from the project's MIT
@@ -44,5 +48,7 @@ python -m research.package_graph_artifacts --project-root . \
   --checkpoints release-assets/VulnHybrid_Models_v1.2.0.zip --out release-assets
 ```
 
-`PUBLICATION_MANIFEST.json` records the exact source/evidence file selection and
-hashes. The packager excludes manuscripts even if they are present locally.
+The packager generates `PUBLICATION_MANIFEST.json` to record its source/evidence
+selection and hashes. The packager excludes manuscripts even if they are present
+locally. Its full-checkout selection can include intermediate result summaries
+that are absent from this published source checkout.
