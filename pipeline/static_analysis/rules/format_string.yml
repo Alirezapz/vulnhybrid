@@ -1,0 +1,37 @@
+rules:
+  - id: format-string-non-literal
+    languages: [c, cpp]
+    severity: WARNING
+    message: >
+      printf-family call whose format-string argument is a plain variable
+      rather than a string literal (CWE-134). If that variable's value can
+      be influenced by external input, this is a format string
+      vulnerability. NOTE: this rule cannot tell a tainted variable from a
+      safe one assigned a hardcoded value earlier -- see scope_note.
+    metadata:
+      cwe: "CWE-134"
+      scope_note: >
+        Verified empirically against a real Juliet CWE134 case
+        (..._environment_w32_vsnprintf_11.c): the file's own "good" function
+        (goodG2B1VaSinkB) calls vsnprintf with a bare-variable format
+        argument too -- syntactically IDENTICAL to the bad sink. It's safe
+        only because that variable was set via strcpy(data,"fixedstringtest")
+        a few lines earlier rather than read from an environment variable.
+        This rule will flag that safe call as a false positive; resolving
+        it requires tracing the variable back to its source, which is a
+        dataflow question, not a syntax question. Documented, not patched
+        around, because patching around it here would just be a different
+        guess dressed up as a fix.
+    patterns:
+      - pattern-either:
+          - pattern: printf($FMT, ...)
+          - pattern: fprintf($STREAM, $FMT, ...)
+          - pattern: sprintf($DST, $FMT, ...)
+          - pattern: snprintf($DST, $SIZE, $FMT, ...)
+          - pattern: vprintf($FMT, $ARGS)
+          - pattern: vfprintf($STREAM, $FMT, $ARGS)
+          - pattern: vsprintf($DST, $FMT, $ARGS)
+          - pattern: vsnprintf($DST, $SIZE, $FMT, $ARGS)
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: "^[A-Za-z_][A-Za-z0-9_]*$"

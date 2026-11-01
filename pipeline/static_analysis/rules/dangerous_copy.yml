@@ -1,0 +1,34 @@
+rules:
+  - id: dangerous-copy
+    languages: [c, cpp]
+    severity: ERROR
+    message: >
+      Call to a string/memory function with no destination-size bound
+      (strcpy/strcat/gets/sprintf/vsprintf). These have no way to know the
+      destination buffer's capacity, so any overflow at the source is an
+      automatic overflow at the destination. Maps to CWE-120/121/122.
+    metadata:
+      cwe: "CWE-120"
+      cwe_aliases: ["CWE-121", "CWE-122"]
+      references:
+        - "Classic 'banned API' list (e.g. Microsoft SDL banned functions)"
+      scope_note: >
+        KNOWN GAP, found empirically against real Juliet CWE121/122 source:
+        a large share of Juliet's buffer-overflow sinks are NOT unbounded
+        string calls at all -- they're raw array-index writes with an
+        insufficient bounds check (e.g. `buffer[data] = 1` checked only for
+        data >= 0, never data < size), or memcpy/snprintf calls where the
+        SIZE ARGUMENT ITSELF is wrong (e.g. `memcpy(dst, src, sizeof(*s))`
+        copying a whole struct's size into one field of it). Neither is
+        syntactically distinguishable from the safe version without real
+        bounds/size reasoning -- this rule does not attempt either case by
+        design, not by oversight.
+    patterns:
+      - pattern-either:
+          - pattern: strcpy($DST, $SRC)
+          - pattern: strcat($DST, $SRC)
+          - pattern: gets($DST)
+          - pattern: sprintf($DST, $FMT, ...)
+          - pattern: vsprintf($DST, $FMT, $ARGS)
+          - pattern: wcscpy($DST, $SRC)
+          - pattern: wcscat($DST, $SRC)

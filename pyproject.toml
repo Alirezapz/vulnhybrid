@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vulnhybrid"
+version = "1.2.0"
+description = "Hybrid static-analysis + LLM vulnerability scanner for C/C++ (thesis pipeline turned into a CLI tool)."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Alireza Pazouki" }]
+keywords = ["security", "static-analysis", "llm", "vulnerability", "c", "cpp", "cwe", "semgrep"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Topic :: Security",
+    "Topic :: Software Development :: Quality Assurance",
+    "License :: OSI Approved :: MIT License",
+]
+
+# Core install gives a fully working static scanner with good function
+# extraction out of the box. LLM providers are optional extras so the base
+# install stays lean and offline-capable.
+dependencies = [
+    "semgrep>=1.60",
+    "tree-sitter>=0.22",
+    "tree-sitter-c>=0.21",
+    "tree-sitter-cpp>=0.22",
+]
+
+[project.optional-dependencies]
+anthropic = ["anthropic>=0.40"]
+openai = ["openai>=1.50"]                 # also covers Ollama / LM Studio / vLLM (OpenAI-compatible)
+llm = ["anthropic>=0.40", "openai>=1.50"]
+dataset = ["datasets>=2.14"]              # only for rebuilding the research dataset (Phase 1)
+dev = ["pytest>=7.0"]
+research = ["numpy>=2.0", "scipy>=1.13", "scikit-learn>=1.5", "pandas>=2.2",
+            "pyarrow>=15", "matplotlib>=3.9", "markdown-it-py>=3", "flawfinder>=2.0"]
+graph = ["torch>=2.5", "torch-geometric>=2.6"]
+all = ["anthropic>=0.40", "openai>=1.50", "datasets>=2.14", "pytest>=7.0"]
+
+[project.scripts]
+vulnhybrid = "vulnhybrid.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/Alirezapz/vulnhybrid"
+Documentation = "https://github.com/Alirezapz/vulnhybrid/blob/main/docs/PIPELINE.md"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["vulnhybrid*", "pipeline*", "research*"]
+
+[tool.setuptools.package-data]
+"pipeline.static_analysis" = ["rules/*.yml"]
+"research" = ["rules/*.yml", "rules/*_test.c"]
+
+[tool.pytest.ini_options]
+# Only collect the tool's own pytest suite. The research pipeline ships its
+# own tests designed to run as `python -m llm_stage.test_llm_client`, not via
+# pytest fixture collection.
+testpaths = ["tests"]

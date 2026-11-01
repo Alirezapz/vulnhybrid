@@ -1,0 +1,42 @@
+rules:
+  - id: unchecked-arithmetic-in-allocation
+    languages: [c, cpp]
+    severity: WARNING
+    message: >
+      Arithmetic performed directly inside an allocation size argument
+      (malloc/calloc/realloc). If either operand can be influenced from
+      outside this function, integer overflow here wraps to a small
+      allocation while the code goes on to write the *un-overflowed*
+      (large) size into it -- a classic CWE-190 -> heap overflow chain.
+      Maps to CWE-190 (Integer Overflow or Wraparound).
+    metadata:
+      cwe: "CWE-190"
+      status: "DRAFT -- NOT YET VALIDATED"
+      references:
+        - "General knowledge of the CWE-190 -> heap-overflow pattern, and of Juliet's typical CWE190_Integer_Overflow__* structure"
+      scope_note: >
+        UNLIKE dangerous_copy.yml / command_injection.yml / format_string.yml,
+        this rule was NOT built by reading real Juliet CWE-190 source, and its
+        recall/false-positive rate has NOT been measured against the real
+        corpus -- semgrep itself isn't installed in the sandbox that wrote
+        this rule, so not even the pattern syntax has been execution-tested.
+        Treat this as a starting draft only. Before trusting it (or adding
+        it to hybrid_scoring.RULE_STATS, which must only ever contain real
+        measured numbers): pull real CWE190 files from your Juliet checkout,
+        read a handful the way the other three rules' scope_notes describe,
+        run `semgrep --config static_analysis/rules/ path/to/CWE190/`, and
+        measure recall + false-positive rate the same way Phase 2 did for
+        the other three rules. Only add a RULE_STATS entry once you have
+        real numbers -- an unmeasured entry there would silently corrupt
+        every hybrid_score() call that hits this rule, since the whole
+        point of that table is that every number in it is a measurement,
+        not a guess.
+    patterns:
+      - pattern-either:
+          - pattern: malloc($X * $Y)
+          - pattern: malloc($X + $Y)
+          - pattern: calloc($X * $Y, $Z)
+          - pattern: realloc($P, $X * $Y)
+          - pattern: realloc($P, $X + $Y)
+      - pattern-not: malloc($X * sizeof(...))
+      - pattern-not: calloc($X * sizeof(...), $Z)

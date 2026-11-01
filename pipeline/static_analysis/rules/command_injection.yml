@@ -1,0 +1,43 @@
+rules:
+  - id: command-injection
+    languages: [c, cpp]
+    severity: ERROR
+    message: >
+      Call to a process/command execution sink. If any argument traces back
+      to external input, this is OS command injection (CWE-78). This rule
+      flags the call site only -- it cannot trace whether the argument is
+      actually tainted, so treat a hit as "needs the LLM/semantic stage to
+      confirm," not as a confirmed vulnerability on its own.
+    metadata:
+      cwe: "CWE-78"
+      scope_note: >
+        Includes Juliet's own uppercase macro aliases (EXECL, POPEN, etc,
+        which #define to platform-specific functions like execl/_execl) in
+        addition to the real function names -- found empirically that the
+        real call sites in Juliet's CWE78 source use these macros, not the
+        bare libc names, so a rule matching only `execl(...)` etc. would
+        silently miss every Juliet CWE78 case despite "covering" CWE-78 on
+        paper.
+    patterns:
+      - pattern-either:
+          - pattern: system($CMD)
+          - pattern: popen($CMD, $MODE)
+          - pattern: execl($PATH, ...)
+          - pattern: execle($PATH, ...)
+          - pattern: execlp($PATH, ...)
+          - pattern: execv($PATH, $ARGV)
+          - pattern: execve($PATH, $ARGV, $ENVP)
+          - pattern: execvp($PATH, $ARGV)
+          - pattern: WinExec($CMD, $SHOW)
+          - pattern: ShellExecute(...)
+          # Juliet's own macro aliases for the above (verified against real
+          # source: CWE78_OS_Command_Injection__char_connect_socket_execl_01.c
+          # uses `EXECL(...)`, which #defines to `_execl`/`execl`)
+          - pattern: SYSTEM($CMD)
+          - pattern: POPEN($CMD, $MODE)
+          - pattern: EXECL($PATH, ...)
+          - pattern: EXECLE($PATH, ...)
+          - pattern: EXECLP($PATH, ...)
+          - pattern: EXECV($PATH, $ARGV)
+          - pattern: EXECVE($PATH, $ARGV, $ENVP)
+          - pattern: EXECVP($PATH, $ARGV)

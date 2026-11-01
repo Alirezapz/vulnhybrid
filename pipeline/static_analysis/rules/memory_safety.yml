@@ -1,0 +1,105 @@
+rules:
+  # ---- CWE-415: Double Free ----------------------------------------------
+  - id: double-free
+    languages: [c, cpp]
+    severity: ERROR
+    message: >
+      The same pointer is passed to free() twice with no reassignment in
+      between (CWE-415). Freeing an already-freed pointer corrupts the
+      allocator's metadata and is frequently exploitable. This complements
+      the LLM stage, which the thesis measured to be weak on state-tracking
+      flaws like this (CWE-415 accuracy ~0.31): whether the SECOND free is
+      really reachable on the same path is what the semantic stage confirms.
+    metadata:
+      cwe: "CWE-415"
+      category: memory-lifecycle
+      confidence: MEDIUM
+      scope_note: >
+        Intra-procedural and reassignment-aware: a free()...free() pair with
+        an intervening `p = <new>` (the realloc/reuse idiom) is deliberately
+        NOT flagged. It does not reason across function boundaries -- a free
+        in a callee followed by a free here is not detected, by design.
+    patterns:
+      - pattern: |
+          free($P);
+          ...
+          free($P);
+      - pattern-not: |
+          free($P);
+          ...
+          $P = $NEW;
+          ...
+          free($P);
+
+  # ---- CWE-416: Use After Free -------------------------------------------
+  - id: use-after-free
+    languages: [c, cpp]
+    severity: ERROR
+    message: >
+      A pointer is dereferenced after being freed (CWE-416). Reading or
+      writing through a dangling pointer is undefined behaviour and a common
+      exploitation primitive. Scoped to DIRECT dereferences of the freed
+      pointer (*p, p->field, p[i]); passing the freed pointer to another
+      function is not flagged here (too noisy without taint tracking).
+    metadata:
+      cwe: "CWE-416"
+      category: memory-lifecycle
+      confidence: MEDIUM
+      scope_note: >
+        Reassignment-aware like double-free: a `p = <new>` between the free
+        and the use suppresses the finding. A `free(p); p = NULL;` followed by
+        a guarded deref is therefore not flagged.
+    patterns:
+      - pattern-either:
+          - pattern: |
+              free($P);
+              ...
+              <... *$P ...>;
+          - pattern: |
+              free($P);
+              ...
+              <... $P->$FIELD ...>;
+          - pattern: |
+              free($P);
+              ...
+              <... $P[$IDX] ...>;
+      - pattern-not: |
+          free($P);
+          ...
+          $P = $NEW;
+          ...
+
+  # ---- CWE-562: Return of Stack Variable Address --------------------------
+  - id: return-stack-address
+    languages: [c, cpp]
+    severity: ERROR
+    message: >
+      A function returns the address of one of its own local (stack)
+      variables (CWE-562). That storage is reclaimed the moment the function
+      returns, so the caller receives a dangling pointer. Unlike a tainted
+      data flow, nothing about the return statement itself looks dangerous --
+      which is why this lifetime bug is easy for both simple rules and LLMs to
+      miss unless specifically checked for.
+    metadata:
+      cwe: "CWE-562"
+      category: memory-lifecycle
+      confidence: HIGH
+      scope_note: >
+        Covers `return &local;` (scalar) and `return local_array;` (array
+        decaying to a pointer to stack). A local explicitly declared `static`
+        has static storage and would be a false positive, but that idiom is
+        rare; not special-cased.
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $T $VAR = ...;
+              ...
+              return &$VAR;
+          - pattern: |
+              $T $VAR;
+              ...
+              return &$VAR;
+          - pattern: |
+              $T $ARR[$N];
+              ...
+              return $ARR;

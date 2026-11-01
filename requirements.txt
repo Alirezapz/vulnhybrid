@@ -1,0 +1,14 @@
+# Core: the scanner tool (vulnhybrid) works with just these + a static engine.
+semgrep>=1.60
+tree-sitter>=0.22
+tree-sitter-c>=0.21
+tree-sitter-cpp>=0.22
+
+# --- Optional, install what you need ---------------------------------------
+# LLM verification (pick the provider you use):
+#   pip install anthropic        # --provider anthropic
+#   pip install openai           # --provider openai / ollama / any OpenAI-compatible
+# Rebuilding the research dataset (Phase 1 only):
+#   pip install datasets
+# cppcheck is a system package, not a pip install:
+#   apt-get install cppcheck     # (optional second static engine)

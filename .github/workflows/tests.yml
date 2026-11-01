@@ -1,0 +1,25 @@
+name: tests
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install project and test dependencies
+        run: python -m pip install -e '.[dev,openai,research]'
+      - name: Regressions and local mock HTTP
+        env:
+          SEMGREP_ENABLE_VERSION_CHECK: '0'
+        run: python -m pytest -q
+      - name: Taint rule fixtures (known array-update miss documented)
+        env:
+          SEMGREP_ENABLE_VERSION_CHECK: '0'
+        run: semgrep --test --config research/rules/taint.yml research/rules/taint_test.c

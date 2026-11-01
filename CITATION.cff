@@ -1,0 +1,34 @@
+cff-version: 1.2.0
+title: "vulnhybrid — hybrid C/C++ vulnerability triage and reproducible evaluation for C/C++"
+message: "If you use this software or its results, please cite it."
+type: software
+authors:
+  - family-names: Pazouki
+    given-names: Alireza
+    email: alirezapazooki@aut.ac.ir
+    affiliation: "Department of Electrical Engineering, Amirkabir University of Technology (Tehran Polytechnic), Tehran, Iran"
+  - family-names: Sharifian
+    given-names: Saeed
+    email: sharifian_s@aut.ac.ir
+    affiliation: "Department of Electrical Engineering, Amirkabir University of Technology (Tehran Polytechnic), Tehran, Iran"
+version: 1.2.0
+date-released: 2026-11-01
+abstract: >
+  A C/C++ static-analysis and optional LLM triage tool with a reproducible
+  evaluation suite. Includes commit-disjoint and cross-project comparisons,
+  paired repair probes, graph neural and Weisfeiler-Lehman baselines,
+  representation ablations, all-family fusion and retained negative results.
+  No state-of-the-art detection claim is made.
+keywords:
+  - software security
+  - static analysis
+  - large language models
+  - vulnerability detection
+  - hybrid approach
+  - graph neural networks
+  - reproducibility
+  - CWE
+  - Juliet
+license: MIT
+repository-code: "https://github.com/Alirezapz/vulnhybrid"
+url: "https://github.com/Alirezapz/vulnhybrid"

@@ -1,0 +1,59 @@
+# Example CI integration: run vulnhybrid on every push / PR and surface the
+# results in GitHub's "Security > Code scanning" tab via SARIF.
+#
+# By default this runs a STATIC triage (no LLM, no secrets, no cost): every
+# dangerous sink shows up as a code-scanning "note" to review. To turn on LLM
+# verification, uncomment the provider lines and add the matching repository
+# secret (Settings > Secrets and variables > Actions).
+name: vulnhybrid security scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write   # required to upload SARIF
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install vulnhybrid (+ optional cppcheck)
+        run: |
+          python -m pip install --upgrade pip
+          pip install .
+          sudo apt-get update && sudo apt-get install -y cppcheck || true
+
+      - name: Run scan (static triage -> SARIF)
+        env:
+          # Uncomment to enable LLM verification in CI:
+          # ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SEMGREP_ENABLE_VERSION_CHECK: "0"
+        run: |
+          vulnhybrid scan . \
+            --tools semgrep \
+            --format sarif \
+            -o vulnhybrid.sarif
+          # With a key, swap the line above for LLM-verified confirmations:
+          #   vulnhybrid scan . --provider anthropic --format sarif -o vulnhybrid.sarif
+
+      - name: Upload SARIF to code scanning
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: vulnhybrid.sarif
+
+      # Optional hard gate: fail the build on model-CONFIRMED vulnerabilities.
+      # (Static-only runs never "confirm", so this needs the LLM step above.)
+      - name: Fail on confirmed vulnerabilities
+        if: false   # set to true once LLM verification is enabled
+        run: vulnhybrid scan . --provider anthropic --fail-on confirmed >/dev/null

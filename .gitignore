@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+build/
+dist/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.so
+
+# Virtual envs
+.venv/
+venv/
+env/
+
+# Editable-install / build metadata
+*.egg-link
+pip-wheel-metadata/
+
+# Tool output
+*.sarif
+scan-report.*
+!examples/**
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Large research artifacts that should be regenerated, not committed
+# (the small sample verdicts under pipeline/data/ ARE committed on purpose)
+juliet-test-suite-c/
+data/combined.jsonl
+data/findings.jsonl
+data/juliet.jsonl
+data/devign.jsonl
+data/research/
+models/
+*.joblib
+artifacts/
+graph_artifacts/
+model.pt
+*_embeddings.npz
+
+# Academic writing and local release artifacts
+/paper/
+/thesis/
+/docs/PAPER_DRAFT.md
+/release-assets/
+# Restored experiment data belongs in release assets
+results/**/cohort.csv
+results/**/validation_partitions.csv
+results/**/sample_index.csv
+results/**/findings.jsonl
+results/**/coverage.json
+results/**/*_predictions.csv
+results/**/*_scores.csv
+results/**/*.stdout
+results/**/*.stderr
+results/**/run.log

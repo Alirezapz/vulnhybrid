@@ -1,0 +1,27 @@
+rules:
+  - id: explicit-source-command-taint
+    mode: taint
+    languages: [c, cpp]
+    severity: ERROR
+    message: External input flows into a shell command; inspect context and validation.
+    metadata:
+      cwe: CWE-78
+      status: experimental
+    pattern-sources:
+      - pattern: getenv(...)
+        exact: true
+      - patterns:
+          - pattern: fgets($BUF, ...)
+          - focus-metavariable: $BUF
+        by-side-effect: true
+      - patterns:
+          - pattern: read($FD, $BUF, ...)
+          - focus-metavariable: $BUF
+        by-side-effect: true
+    pattern-sinks:
+      - patterns:
+          - pattern: system($CMD)
+          - focus-metavariable: $CMD
+      - patterns:
+          - pattern: popen($CMD, ...)
+          - focus-metavariable: $CMD

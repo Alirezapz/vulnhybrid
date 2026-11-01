@@ -1,0 +1,15 @@
+# Recorded on Python 3.12.14, Linux; direct research dependencies.
+numpy==2.3.5
+scipy==1.17.0
+scikit-learn==1.8.0
+pandas==2.2.3
+matplotlib==3.10.8
+pyarrow==26.0.0
+markdown-it-py==4.2.0
+semgrep==1.183.0
+flawfinder==2.0.20
+pytest==9.2.0
+tree-sitter==0.26.0
+tree-sitter-c==0.24.2
+tree-sitter-cpp==0.23.4
+openai==3.42.0
